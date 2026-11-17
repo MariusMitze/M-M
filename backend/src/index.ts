@@ -72,21 +72,16 @@ const health = new Elysia({ prefix: "/api/v1" })
   .get("/health", () => ({ status: "ok" }));
 
 // =============================================================================
-// Haupt-App für die Produkte  →  /api/product
+// Produkt-Routen  →  /api/product
 // -----------------------------------------------------------------------------
 // Alle Routen hier beginnen mit "/api/product" (prefix).
-// Die Methoden werden "verkettet" (.use().get().post()...) – das nennt man
+// Die Methoden werden "verkettet" (.get().post()...) – das nennt man
 // Fluent API, kennst du aus C# z. B. von LINQ oder builder.Services.Add...().
+//
+// Wichtig: Das ist – genau wie "health" – nur eine Gruppe von Routen.
+// Gestartet wird der Server erst ganz unten in der Haupt-App "app".
 // =============================================================================
-const app = new Elysia({ prefix: "/api/product" })
-  // CORS erlauben: Das Frontend läuft lokal auf Port 3000, das Backend auf 3001.
-  // Browser blockieren Anfragen an einen anderen Port, außer der Server erlaubt es.
-  .use(cors())
-
-  // NEU: Health-App einhängen. Weil sie ihr eigenes Präfix hat, landet die
-  // Route bei /api/v1/health und NICHT bei /api/product/v1/health.
-  .use(health)
-
+const products = new Elysia({ prefix: "/api/product" })
   // GET /api/product → alle Produkte als Liste zurückgeben.
   // [...x] ("Spread") kopiert das Ergebnis in ein normales Array
   // (ähnlich wie .ToList() in C#). Hier nötig, damit CORS-Header nicht verloren gehen.
@@ -130,7 +125,30 @@ const app = new Elysia({ prefix: "/api/product" })
       return { message: "Product was deleted permanently from DB." };
     },
     { params: t.Object({ id: t.Numeric() }) },
-  )
+  );
+
+// =============================================================================
+// Haupt-App  →  setzt alles zusammen und startet den Server
+// -----------------------------------------------------------------------------
+// Die Haupt-App hat KEIN Präfix. Warum?
+// Elysia setzt das Präfix der Haupt-App auch vor alle eingehängten Gruppen.
+// Hätte "app" das Präfix "/api/product", würde der Health-Endpoint bei
+//   /api/product/api/v1/health   landen statt bei   /api/v1/health.
+//
+// Vergleich C# (Program.cs):
+//   app.UseCors();
+//   app.MapGroup("/api/v1")...;       // health
+//   app.MapGroup("/api/product")...;  // products
+//   app.Run();
+// =============================================================================
+const app = new Elysia()
+  // CORS erlauben: Das Frontend läuft lokal auf Port 3000, das Backend auf 3001.
+  // Browser blockieren Anfragen an einen anderen Port, außer der Server erlaubt es.
+  .use(cors())
+
+  // Die beiden Routen-Gruppen einhängen (wie app.MapGroup in C#).
+  .use(health)    // → GET /api/v1/health
+  .use(products)  // → /api/product ...
 
   // Server starten. "??" funktioniert wie in C#: Nimm PORT, sonst 3001.
   // Entspricht app.Run("http://0.0.0.0:3001").
