@@ -54,31 +54,13 @@ for (let attempt = 1; ; attempt++) {
 const ProductBody = t.Object({ name: t.String(), cost: t.Integer() });
 
 // =============================================================================
-// NEU: Health-Endpoint  →  GET /api/v1/health
-// -----------------------------------------------------------------------------
-// Eine eigene kleine Elysia-App mit Präfix "/api/v1".
-// Vergleich C#:
-//   var v1 = app.MapGroup("/api/v1");
-//   v1.MapGet("/health", () => new { status = "ok" });
-//
-// "() => ({ status: "ok" })" ist eine Lambda-Funktion (wie in C#: () => new { status = "ok" }).
-// Die runden Klammern um { ... } braucht man, damit JS das als Objekt erkennt
-// und nicht als Code-Block.
-//
-// Elysia macht aus dem zurückgegebenen Objekt automatisch JSON und schickt
-// Statuscode 200 OK – genau wie ASP.NET bei Results.Ok(...).
-// =============================================================================
-const health = new Elysia({ prefix: "/api/v1" })
-  .get("/health", () => ({ status: "ok" }));
-
-// =============================================================================
 // Produkt-Routen  →  /api/product
 // -----------------------------------------------------------------------------
 // Alle Routen hier beginnen mit "/api/product" (prefix).
 // Die Methoden werden "verkettet" (.get().post()...) – das nennt man
 // Fluent API, kennst du aus C# z. B. von LINQ oder builder.Services.Add...().
 //
-// Wichtig: Das ist – genau wie "health" – nur eine Gruppe von Routen.
+// Wichtig: Das ist nur eine Gruppe von Routen.
 // Gestartet wird der Server erst ganz unten in der Haupt-App "app".
 // =============================================================================
 const products = new Elysia({ prefix: "/api/product" })
@@ -137,8 +119,8 @@ const products = new Elysia({ prefix: "/api/product" })
 //
 // Vergleich C# (Program.cs):
 //   app.UseCors();
-//   app.MapGroup("/api/v1")...;       // health
-//   app.MapGroup("/api/product")...;  // products
+//   app.MapGet("/api/v1/health", () => new { status = "ok" });
+//   app.MapGroup("/api/product")...;
 //   app.Run();
 // =============================================================================
 const app = new Elysia()
@@ -146,8 +128,14 @@ const app = new Elysia()
   // Browser blockieren Anfragen an einen anderen Port, außer der Server erlaubt es.
   .use(cors())
 
-  // Die beiden Routen-Gruppen einhängen (wie app.MapGroup in C#).
-  .use(health)    // → GET /api/v1/health
+  // Health-Endpoint  →  GET /api/v1/health  →  Antwort: {"status":"ok"}
+  // Die Lambda gibt ein Objekt zurück; Elysia macht daraus automatisch JSON
+  // mit Statuscode 200 (wie Results.Ok(...) in ASP.NET).
+  // Die runden Klammern um { ... } braucht man, damit JS das als Objekt
+  // erkennt und nicht als Code-Block.
+  .get("/api/v1/health", () => ({ status: "ok" }))
+
+  // Produkt-Routen einhängen (wie app.MapGroup in C#).
   .use(products)  // → /api/product ...
 
   // Server starten. "??" funktioniert wie in C#: Nimm PORT, sonst 3001.

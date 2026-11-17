@@ -32,6 +32,7 @@ const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001/api";
 export async function getHealth() {
   // fetch() = HttpClient.GetAsync(). Ohne weitere Angaben ist das ein GET-Request.
   // `${API_URL}/v1/health` = String-Interpolation, wie $"{API_URL}/v1/health" in C#.
+  // Achtung: API_URL endet schon auf "/api" → hier NICHT nochmal "/api" anhängen.
   const res = await fetch(`${API_URL}/v1/health`);
 
   // res.json() liest den Body und wandelt JSON in ein JS-Objekt um

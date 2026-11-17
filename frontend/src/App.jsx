@@ -1,49 +1,16 @@
-// =============================================================================
-// FRONTEND – frontend/src/App.jsx
-// -----------------------------------------------------------------------------
-// Das ist die Hauptkomponente der Seite – vergleichbar mit Index.razor in Blazor.
-//
-// ".jsx" = JavaScript, in dem man HTML-ähnlichen Code direkt schreiben darf.
-// Das ist das Gegenstück zu .razor-Dateien. Der Unterschied:
-//   - In Blazor:  HTML oben, C#-Code im @code { } Block unten.
-//   - In React:   Alles ist EINE Funktion. Logik oben, das HTML steht im "return".
-//
-// Eine React-Komponente ist einfach eine Funktion, die HTML (JSX) zurückgibt.
-// React ruft diese Funktion bei jeder Änderung NEU auf, um die Seite neu zu
-// zeichnen (wie StateHasChanged() in Blazor, nur passiert das automatisch).
-// =============================================================================
 
-// useState und useEffect sind sogenannte "Hooks" – spezielle React-Funktionen.
-// Erklärung siehe unten, wo sie benutzt werden.
 import { useState, useEffect } from "react";
 
-// Funktionen aus api.js importieren (wie @inject ProductService in Blazor).
-// NEU: getHealth dazu importiert.
+
 import { getProducts, createProduct, updateProduct, deleteProduct, getHealth } from "./api";
 
-// Andere Komponenten importieren. In Blazor sind Komponenten automatisch
-// verfügbar, in React muss man jede einzeln importieren.
+
 import ProductForm from "./ProductForm";
 import ProductTable from "./ProductTable";
 
-// "export default" = das ist die Hauptsache, die diese Datei anbietet.
-// main.jsx importiert App und zeigt sie auf der Seite an.
+
 export default function App() {
-  // ---------------------------------------------------------------------------
-  // STATE (Zustand) – die "Felder" der Komponente
-  // ---------------------------------------------------------------------------
-  // In Blazor schreibst du im @code-Block:
-  //     private List<Product> products = new();
-  // und änderst das Feld direkt: products = data;
-  //
-  // In React geht das NICHT direkt, weil die Funktion bei jedem Neuzeichnen
-  // neu läuft und normale Variablen dabei verloren gehen. Stattdessen:
-  //     const [wert, setWert] = useState(startwert);
-  //   - wert     = aktueller Wert (nur lesen!)
-  //   - setWert  = Funktion zum Ändern. Ruft man sie auf, merkt sich React den
-  //                neuen Wert UND zeichnet die Seite automatisch neu.
-  // Die Schreibweise [a, b] = ... heißt "Destructuring" (wie Tuple-Deconstruction
-  // in C#: var (a, b) = ...).
+  
   const [products, setProducts] = useState([]);             // Produktliste, am Anfang leer
   const [editingProduct, setEditingProduct] = useState(null); // gerade bearbeitetes Produkt
 
@@ -121,22 +88,10 @@ export default function App() {
     <div>
       <h1>Think different Academy!</h1>
 
-      {/* NEU: Health-Status anzeigen.
-          Kommentare im JSX schreibt man so: {/* ... *\/}
-
-          {health && <p>...</p>} bedeutet: "Nur anzeigen, wenn health einen Wert hat."
-          Das ist das Gegenstück zu Razor:
-              @if (health != null) { <p>Status: @health.ToUpper()</p> }
-
-          .toUpperCase() = .ToUpper() in C#. Aus "ok" wird "OK",
-          weil die Aufgabe genau "Status: OK" verlangt. */}
+      
       {health && <p>Status: {health.toUpperCase()}</p>}
 
-      {/* Kind-Komponente mit "Props" (= [Parameter] in Blazor).
-          onSubmit={...} ist wie OnSubmit="..." in Blazor.
-
-          bedingung ? a : b ist der Ternary-Operator, gleich wie in C#.
-          (p) => handleUpdate(...) ist eine Lambda, gleich wie in C#. */}
+     
       <ProductForm
         onSubmit={editingProduct ? (p) => handleUpdate(editingProduct.id, p) : handleCreate}
         initial={editingProduct}
