@@ -3,6 +3,7 @@ import { getProducts, createProduct, updateProduct, deleteProduct } from "./api"
 import ProductForm from "./ProductForm";
 import ProductTable from "./ProductTable";
 
+  
 export default function App() {
   const [products, setProducts] = useState([]);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -37,6 +38,10 @@ export default function App() {
   }
 
   return (
+<div>
+    <h1>Think different Academy!</h1>
+  <p>In this Academy, we learn to think differently. That makes us better Human beeings and better citizens!</p>
+
     <div>
       <h1>Produkte</h1>
 
@@ -52,5 +57,8 @@ export default function App() {
         onDelete={handleDelete}
       />
     </div>
+    </div>
   );
 }
+
+
